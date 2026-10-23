@@ -52,7 +52,71 @@ class RegistrationSecurityTest {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("DRIVER"))
+                .andExpect(jsonPath("$.customerType").value("INDIVIDUAL"))
                 .andExpect(jsonPath("$.driverApprovalStatus").value("PENDING_APPROVAL"));
+    }
+
+    @Test
+    void publicRegistrationDefaultsCustomerTypeToIndividual() throws Exception {
+        when(userRepository.existsByEmail("customer@example.com")).thenReturn(false);
+        when(userRepository.existsByPhone("0712345680")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User saved = invocation.getArgument(0);
+            saved.setId(2L);
+            return saved;
+        });
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"fullName":"Example Customer","email":"customer@example.com",
+                                 "phone":"0712345680","password":"password123","role":"CUSTOMER"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerType").value("INDIVIDUAL"));
+    }
+
+    @Test
+    void publicCompanyRegistrationStoresCompanyDetails() throws Exception {
+        when(userRepository.existsByEmail("company@example.com")).thenReturn(false);
+        when(userRepository.existsByPhone("0712345681")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User saved = invocation.getArgument(0);
+            saved.setId(3L);
+            return saved;
+        });
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"fullName":"Company Account","email":"company@example.com",
+                                 "phone":"0712345681","password":"password123","role":"CUSTOMER",
+                                 "customerType":"COMPANY","companyName":"Acme Logistics",
+                                 "tinNumber":"123-456-789","vrnNumber":"VRN-123",
+                                 "brelaNumber":"BRELA-123","contactPersonName":"Asha Manager",
+                                 "officeAddress":"Dar es Salaam"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerType").value("COMPANY"))
+                .andExpect(jsonPath("$.companyName").value("Acme Logistics"))
+                .andExpect(jsonPath("$.tinNumber").value("123-456-789"))
+                .andExpect(jsonPath("$.vrnNumber").value("VRN-123"))
+                .andExpect(jsonPath("$.brelaNumber").value("BRELA-123"))
+                .andExpect(jsonPath("$.contactPersonName").value("Asha Manager"))
+                .andExpect(jsonPath("$.officeAddress").value("Dar es Salaam"));
+    }
+
+    @Test
+    void publicCompanyRegistrationRequiresCompanyDetails() throws Exception {
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"fullName":"Company Account","email":"company@example.com",
+                                 "phone":"0712345682","password":"password123","role":"CUSTOMER",
+                                 "customerType":"COMPANY","companyName":" ","tinNumber":"",
+                                 "contactPersonName":"","officeAddress":""}
+                                """))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

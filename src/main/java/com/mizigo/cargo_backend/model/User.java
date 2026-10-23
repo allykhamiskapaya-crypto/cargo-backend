@@ -34,6 +34,29 @@ private String password;
     @Column(nullable = false)
     private UserRole role = UserRole.CUSTOMER;
 
+        @Enumerated(EnumType.STRING)
+        @Column(name = "customer_type", nullable = false, length = 20,
+            columnDefinition = "varchar(20) default 'INDIVIDUAL'")
+        private CustomerType customerType = CustomerType.INDIVIDUAL;
+
+        @Column(name = "company_name", length = 200)
+        private String companyName;
+
+        @Column(name = "tin_number", length = 50)
+        private String tinNumber;
+
+        @Column(name = "vrn_number", length = 50)
+        private String vrnNumber;
+
+        @Column(name = "brela_number", length = 50)
+        private String brelaNumber;
+
+        @Column(name = "contact_person_name", length = 150)
+        private String contactPersonName;
+
+        @Column(name = "office_address", length = 500)
+        private String officeAddress;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "driver_approval_status")
     private DriverApprovalStatus driverApprovalStatus;
@@ -72,6 +95,27 @@ private String password;
 
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }
+
+    public CustomerType getCustomerType() { return customerType; }
+    public void setCustomerType(CustomerType customerType) { this.customerType = customerType; }
+
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
+
+    public String getTinNumber() { return tinNumber; }
+    public void setTinNumber(String tinNumber) { this.tinNumber = tinNumber; }
+
+    public String getVrnNumber() { return vrnNumber; }
+    public void setVrnNumber(String vrnNumber) { this.vrnNumber = vrnNumber; }
+
+    public String getBrelaNumber() { return brelaNumber; }
+    public void setBrelaNumber(String brelaNumber) { this.brelaNumber = brelaNumber; }
+
+    public String getContactPersonName() { return contactPersonName; }
+    public void setContactPersonName(String contactPersonName) { this.contactPersonName = contactPersonName; }
+
+    public String getOfficeAddress() { return officeAddress; }
+    public void setOfficeAddress(String officeAddress) { this.officeAddress = officeAddress; }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public DriverApprovalStatus getDriverApprovalStatus() { return driverApprovalStatus; }
